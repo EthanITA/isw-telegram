@@ -1,16 +1,12 @@
 class Course:
-    def __init__(self,
-                 _id,
-                 name,
-                 about=None,
-                 about_exam=None,
-                 about_materials=None,
-                 contents=None,
-                 site=None):
-        self.id = _id
-        self.name = name
-        self.about = about
-        self.about_exam = about_exam
-        self.about_materials = about_materials
-        self.contents = contents
-        self.site = site
+    def __init__(self, records: dict = None, _id=None):
+        if _id is None:
+            self.id = records['Id']
+            self.name = records['Name']
+            self.about = records['About__c']
+            self.about_exam = records['About_Exam__c']
+            self.about_materials = records['About_Materials__c']
+            self.contents = records['Contents__c']
+            self.site = records['Site__c']
+        else:
+            self.id = _id
