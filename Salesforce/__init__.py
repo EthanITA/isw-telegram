@@ -17,6 +17,14 @@ def query_all(query: str, *args, **kwargs):
     try:
         return sf.query_all(format_soql(query, *args, **kwargs))
     except simple_salesforce.exceptions.SalesforceExpiredSession as sessions_expired:
-        print(sessions_expired)
         sf = Salesforce(username=username, password=password, security_token=security_token)
         return sf.query_all(format_soql(query, *args, **kwargs))
+
+
+def query(query: str):
+    global sf
+    try:
+        return sf.query(query)
+    except simple_salesforce.exceptions.SalesforceExpiredSession as sessions_expired:
+        sf = Salesforce(username=username, password=password, security_token=security_token)
+        return sf.query(query)
