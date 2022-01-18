@@ -1,6 +1,7 @@
 import json
 import os
 
+import simple_salesforce
 from simple_salesforce import Salesforce, format_soql
 
 secrets = os.environ if os.environ.get('is_production') else json.load(open(os.path.join("secrets")))
@@ -12,4 +13,10 @@ sf = Salesforce(username=username, password=password, security_token=security_to
 
 
 def query_all(query: str, *args, **kwargs):
-    return sf.query_all(format_soql(query, *args, **kwargs))
+    global sf
+    try:
+        return sf.query_all(format_soql(query, *args, **kwargs))
+    except simple_salesforce.exceptions.SalesforceExpiredSession as sessions_expired:
+        print(sessions_expired)
+        sf = Salesforce(username=username, password=password, security_token=security_token)
+        return sf.query_all(format_soql(query, *args, **kwargs))
