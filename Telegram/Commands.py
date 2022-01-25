@@ -1,10 +1,11 @@
 from telegram import Update
 from telegram.ext import CallbackContext
 
-from Salesforce.Object.Course import Course
-from Salesforce.Object.Professor import Professor
+from Postgres.Object.Book import Book
+from Postgres.Object.Content import Content
+from Postgres.Object.Professor import Professor
 
-course_id = "a017Q00000JZn8qQAD"
+course_id = "1"
 
 
 def contacts(update: Update, context: CallbackContext):
@@ -14,13 +15,12 @@ def contacts(update: Update, context: CallbackContext):
 
 
 def books(update: Update, context: CallbackContext):
-    for book in Course.get_books(course_id):
-        context.bot.send_message(chat_id=update.effective_chat.id, text=f"{book}")
+    for book in Book.get_books(course_id):
+        context.bot.send_message(chat_id=update.effective_chat.id, text=book.name)
 
 
 def contents(update: Update, context: CallbackContext):
-    for content in Course.get_contents(course_id):
-        context.bot.send_message(chat_id=update.effective_chat.id, text=content)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=Content.get_formatted_contents(course_id))
 
 
 # the list has to be in this format:
