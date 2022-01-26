@@ -16,3 +16,5 @@ for name, desc, callback in Telegram.Commands.list:
 updater.bot.set_my_commands(commands=bot_commands)
 
 updater.start_polling()
+
+print("Bot started!")
