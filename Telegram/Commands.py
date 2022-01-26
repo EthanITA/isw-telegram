@@ -10,7 +10,6 @@ course_id = "1"
 
 def contacts(update: Update, context: CallbackContext):
     for professor in Professor.get_all_professors(course_id):
-        print(professor.get_formatted_contacts())
         context.bot.send_message(chat_id=update.effective_chat.id, text=professor.get_formatted_contacts())
 
 
