@@ -32,10 +32,14 @@ class Lecture:
                           key=lambda x: x.start_time)
 
     def get_formatted_info(self):
-        return f"Corso: *{self.title}*\n" \
+        info = f"Corso: *{self.title}*\n" \
+               f"Docente: *{self.professor}*\n" \
                f"Location: *{self.building}*,  _{self.address}_\n" \
                f"Giorno: *{self.start_time.strftime('%d/%m/%Y')}*\n" \
                f"Orario: *{self.time}*\n"
+        if self.teams_link is not None:
+            info += f"Teams: [Link]({self.teams_link})"
+        return info
 
 
 def contacts(update: Update, context: CallbackContext):
