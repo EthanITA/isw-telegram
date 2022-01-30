@@ -40,13 +40,20 @@ def get_next_lecture_info(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text=lecture.get_formatted_info(), parse_mode="Markdown")
 
 
+def get_slides(update: Update, context: CallbackContext):
+    slides = [slide.formatted_text_md for slide in Slide.get_all_slides(course_id)]
+    context.bot.send_message(chat_id=update.effective_chat.id, text="\n".join(slides), parse_mode="Markdown",
+                             disable_web_page_preview=True)
+
+
 # the list has to be in this format:
 # command_name, command_description, callback_function
 # !important the command_name must be in lowercase
 list = sorted([
 
-    ('contacts', 'Get professors\' contacts', contacts),
-    ('books', 'Get course\' books', books),
-    ('contents', 'Get course\' contents', contents),
-    ('next_lecture', 'Get next lecture info', get_next_lecture_info)
+    ('contacts', 'Get professors\' contacts', get_professor_contacts),
+    ('books', 'Get course\' books', get_books),
+    ('contents', 'Get course\' contents', get_contents),
+    ('next_lecture', 'Get next lecture info', get_next_lecture_info),
+    ('slides', 'Get slides', get_slides)
 ], key=lambda command: command[1])
