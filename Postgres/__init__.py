@@ -16,5 +16,10 @@ cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
 
 def query_all(query: str, *args, **kwargs):
-    cursor.execute(query, *args, **kwargs)
-    return cursor.fetchall()
+    try:
+        cursor.execute(query, *args, **kwargs)
+        return cursor.fetchall()
+    except Exception as e:
+        conn.rollback()
+        cursor.execute(query, *args, **kwargs)
+        return cursor.fetchall()
