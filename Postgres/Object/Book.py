@@ -9,6 +9,6 @@ class Book:
         self.course: int = records.get('Course')
 
     @staticmethod
-    def get_books(course_id):
+    def get_all_books(course_id):
         records = Postgres.query_all('SELECT * FROM "Book" where "Course"=%(value)s', {'value': course_id})
         return sorted([Book(book) for book in records], key=lambda x: x.order)

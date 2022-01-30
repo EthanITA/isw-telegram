@@ -9,11 +9,10 @@ class Content:
         self.course: int = records.get('Course')
 
     @staticmethod
-    def get_contents(course_id) -> list:
+    def get_all_contents(course_id) -> list:
         records = Postgres.query_all('SELECT * FROM "Content" where "Course"=%(value)s', {'value': course_id})
         return sorted([Content(content) for content in records], key=lambda x: x.order)
 
-    @staticmethod
-    def get_formatted_contents(course_id) -> str:
-        contents = Content.get_contents(course_id)
-        return '\n'.join([f'{content.order}. {content.name}' for content in contents])
+    @property
+    def formatted_text(self) -> str:
+        return f'{self.order}. {self.name}'

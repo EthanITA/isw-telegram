@@ -15,7 +15,8 @@ class Professor:
         self.tg_user_id = sf_records.get('Telegram UserID')
         self.tg_username = sf_records.get('Telegram Username')
 
-    def get_formatted_contacts(self):
+    @property
+    def formatted_contacts_text(self):
         text = f"Prof. {self.last_name}: {self.email}" \
                f"\nSito UNIBO: {self.website}"
         if self.phone:
