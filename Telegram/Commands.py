@@ -23,7 +23,7 @@ def get_books(update: Update, context: CallbackContext):
 
 
 def get_contents(update: Update, context: CallbackContext):
-    contents = [content.formatted_text_md for content in Content.get_all_contents(course_id)]
+    contents = [content.formatted_text for content in Content.get_all_contents(course_id)]
 
     context.bot.send_message(chat_id=update.effective_chat.id, text="\n".join(contents))
 
