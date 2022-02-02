@@ -52,6 +52,15 @@ def get_help(update: Update, context: CallbackContext):
                              text="\n".join([f"/{command} : {descr}" for command, descr, _ in list_of_commands]))
 
 
+def generate_taiga_webhooks(update: Update, context: CallbackContext):
+    heroku_app = "https://isw-bot.herokuapp.com"
+    help = "Go in your Taiga Board settings -> Integrations -> Webhooks\n" \
+           "Choose a name you like, put whatever you want as secret key and add the following Payload URL: "
+    webhook = f"{heroku_app}/taiga/{update.effective_chat.id}"
+    context.bot.send_message(chat_id=update.effective_chat.id, text=help)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=webhook)
+
+
 # the list has to be in this format:
 # command_name, command_description, callback_function
 # !important the command_name must be in lowercase
@@ -62,5 +71,6 @@ list_of_commands = sorted([
     ('contents', 'Get course\' contents', get_contents),
     ('next_lecture', 'Get next lecture info', get_next_lecture_info),
     ('slides', 'Get slides', get_slides),
-    ('help', 'Get list of available commands', get_help)
+    ('help', 'Get list of available commands', get_help),
+    ('taiga_webhook', 'Generate Taiga webhooks', generate_taiga_webhooks)
 ], key=lambda command: command[1])
