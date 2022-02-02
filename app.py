@@ -2,7 +2,7 @@ from flask import Flask, request
 from telegram import Bot
 from telegram.ext import Updater
 
-import Telegram.Commands
+import Telegram
 
 isw_bot = Bot(Telegram.api_key)
 
