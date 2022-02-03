@@ -5,6 +5,7 @@ from flask import Flask, request
 from telegram import Bot
 from telegram.ext import Updater
 
+import Helper
 import Telegram
 
 isw_bot = Bot(Telegram.api_key)
@@ -27,14 +28,15 @@ def taiga_callback(chat_id):
     action = data["action"]
     type = data["type"]
     user = data["by"]["full_name"]
-    link = data["data"]["project"]["permalink"]
-    date = datetime.strptime(data["date"], "%Y-%m-%dT%H:%M:%S.%fZ")
+    user_link = data["by"]["permalink"]
+    board_link = data["data"]["project"]["permalink"]
+    date = Helper.convert_utc_rome(datetime.strptime(data["date"], "%Y-%m-%dT%H:%M:%S.%fZ"))
 
     print(data)
-    text = f"*{user}* ha fatto una *{action}* di *{type}* sulla board [*{board}*]({link}) " \
-           f"alle *{date.strftime('%H:%M')}* del *{date.strftime('%d/%m/%Y')}*"
+    text = f"*[{date.strftime('%H:%M')} {date.strftime('%d/%m/%Y')}]* " \
+           f"The user [{user}]({user_link}) *{action}d* a *{type}* on the board [{board}]({board_link}) "
     try:
-        isw_bot.send_message(chat_id=chat_id, text=text)
+        isw_bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
     except Exception as e:
         print(e)
 
