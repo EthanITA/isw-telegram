@@ -33,7 +33,7 @@ def taiga_callback(chat_id):
     date = Helper.convert_utc_rome(datetime.strptime(data["date"], "%Y-%m-%dT%H:%M:%S.%fZ"))
 
     print(data)
-    text = f"*[{date.strftime('%H:%M')} {date.strftime('%d/%m/%Y')}]* " \
+    text = f"*[{date.strftime('%H:%M:%S')}]* " \
            f"The user [{user}]({user_link}) *{action}d* a *{type}* on the board [{board}]({board_link}) "
     try:
         isw_bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
