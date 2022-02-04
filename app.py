@@ -1,11 +1,9 @@
 import json
-from datetime import datetime
 
 from flask import Flask, request
 from telegram import Bot
 from telegram.ext import Updater
 
-import Helper
 import Telegram
 from Taiga import Taiga
 

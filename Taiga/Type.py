@@ -1,3 +1,4 @@
+from Helper.MessageMD import MessageMD
 from Taiga import Action
 
 milestone = "milestone"
@@ -17,6 +18,7 @@ def get_changes(changes):
     else:
         return ""
 
+
 class FormatAction:
     def __init__(self, action, create, delete, change):
         self.action = action
@@ -24,8 +26,7 @@ class FormatAction:
         self.delete = delete
         self.change = change
 
-    @property
-    def message(self):
+    def __str__(self):
         match self.action:
             case Action.create:
                 return self.create
@@ -35,8 +36,8 @@ class FormatAction:
                 return self.change
 
 
-class Milestone:
-    def __init__(self, payload, changes=None):
+class Milestone(MessageMD):
+    def __init__(self, payload, action, changes=None):
         self.link = payload["permalink"]
         self.name = payload["name"]
         self.slug = payload["slug"]
@@ -44,6 +45,10 @@ class Milestone:
         self.estimated_finish = payload["estimated_finish"]
         self.disponibility = payload["disponibility"]
         self.changes = changes
+        super().__init__(FormatAction(action,
+                                      self._create_message_md,
+                                      self._delete_message_md,
+                                      self._change_message_md))
 
     @property
     def _create_message_md(self):
@@ -58,15 +63,9 @@ class Milestone:
         text = f"The milestone [{self.name}]({self.link}) has been changed\n\n"
         return text + get_changes(self.changes)
 
-    def format_message_md(self, action):
-        return FormatAction(action,
-                            self._create_message_md,
-                            self._delete_message_md,
-                            self._change_message_md).message
 
-
-class UserStory:
-    def __init__(self, payload, changes=None):
+class UserStory(MessageMD):
+    def __init__(self, payload, action, changes=None):
         self.tags: list[str] = payload["tags"]
         self.link = payload["permalink"]
         self.points: list[dict] = payload["points"]
@@ -74,7 +73,11 @@ class UserStory:
         self.subject = payload["subject"]
         self.description = payload["description"]
         self.changes = changes
-        self.milestone = Milestone(payload["milestone"]) if payload.get("milestone") else None
+        self.milestone = Milestone(payload["milestone"], action) if payload.get("milestone") else None
+        super().__init__(FormatAction(action,
+                                      self._create_message_md,
+                                      self._delete_message_md,
+                                      self._change_message_md))
 
     @property
     def _create_message_md(self):
@@ -96,15 +99,9 @@ class UserStory:
         text = f"*[{self.status}]* The user story [{self.subject}]({self.link}){mil} has been changed\n\n"
         return text + get_changes(self.changes)
 
-    def format_message_md(self, action):
-        return FormatAction(action,
-                            self._create_message_md,
-                            self._delete_message_md,
-                            self._change_message_md).message
 
-
-class Task:
-    def __init__(self, payload, changes=None):
+class Task(MessageMD):
+    def __init__(self, payload, action, changes=None):
         self.tags: list[str] = payload["tags"]
         self.link = payload["permalink"]
         self.status = payload["status"]["name"]
@@ -112,9 +109,14 @@ class Task:
         self.description = payload["description"]
         self.changes = changes
 
-        self.milestone = Milestone(payload["milestone"]) if payload.get("milestone") else None
-        self.userstory = UserStory(payload["user_story"]) if payload.get("user_story") else None
+        self.milestone = Milestone(payload["milestone"], action) if payload.get("milestone") else None
+        self.userstory = UserStory(payload["user_story"], action) if payload.get("user_story") else None
         self.us_order = payload["us_order"]
+
+        super().__init__(FormatAction(action,
+                                      self._create_message_md,
+                                      self._delete_message_md,
+                                      self._change_message_md))
 
     @property
     def _create_message_md(self):
@@ -141,25 +143,23 @@ class Task:
         text = f"*[{self.status}]* The task [{self.subject}]({self.link}) has been changed{us}{mil}\n\n"
         return text + get_changes(self.changes)
 
-    def format_message_md(self, action):
-        return FormatAction(action,
-                            self._create_message_md,
-                            self._delete_message_md,
-                            self._change_message_md).message
 
-
-class Issue:
-    def __init__(self, payload, changes=None):
+class Issue(MessageMD):
+    def __init__(self, payload, action, changes=None):
         self.tags: list[str] = payload["tags"]
         self.link = payload["permalink"]
         self.status = payload["status"]["name"]
         self.subject = payload["subject"]
         self.description = payload["description"]
-        self.milestone = Milestone(payload["milestone"]) if payload.get("milestone") else None
+        self.milestone = Milestone(payload["milestone"], action) if payload.get("milestone") else None
         self.type = payload["type"]["name"]
         self.priority = payload["priority"]["name"]
         self.severity = payload["severity"]["name"]
         self.changes = changes
+        super().__init__(FormatAction(action,
+                                      self._create_message_md,
+                                      self._delete_message_md,
+                                      self._change_message_md))
 
     @property
     def _create_message_md(self):
@@ -183,19 +183,17 @@ class Issue:
         text = f"*[{self.status}][{self.type}]* The issue [{self.subject}]({self.link}) has been changed{mil}\n\n"
         return text + get_changes(self.changes)
 
-    def format_message_md(self, action):
-        return FormatAction(action,
-                            self._create_message_md,
-                            self._delete_message_md,
-                            self._change_message_md).message
 
-
-class Wiki:
-    def __init__(self, payload, changes=None):
+class Wiki(MessageMD):
+    def __init__(self, payload, action, changes=None):
         self.link = payload["permalink"]
         self.slug = payload["slug"]
         self.content = payload["content"]
         self.changes = changes
+        super().__init__(FormatAction(action,
+                                      self._create_message_md,
+                                      self._delete_message_md,
+                                      self._change_message_md))
 
     @property
     def _create_message_md(self):
@@ -209,9 +207,3 @@ class Wiki:
     def _change_message_md(self):
         text = f"The wiki page [{self.slug}]({self.link}) has been changed\n\n"
         return text + get_changes(self.changes)
-
-    def format_message_md(self, action):
-        return FormatAction(action,
-                            self._create_message_md,
-                            self._delete_message_md,
-                            self._change_message_md).message

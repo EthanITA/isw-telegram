@@ -9,4 +9,3 @@ def convert_utc_rome(utc_time: datetime):
     utc = utc_time.replace(tzinfo=from_zone)
     rome_time = utc.astimezone(to_zone)
     return rome_time
-
