@@ -61,6 +61,22 @@ def generate_taiga_webhooks(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text=webhook)
 
 
+def generate_gitlab_webhooks(update: Update, context: CallbackContext):
+    heroku_app = "https://isw-bot.herokuapp.com"
+    help = "Go in your GitLab Project settings -> Webhooks\n" \
+           "Add the following URL: "
+    webhook = f"{heroku_app}/gitlab/{update.effective_chat.id}"
+    add_help = "The following events are supported: \n" \
+               "* Push events\n" \
+               "* Issue events\n" \
+               "* Comment events\n" \
+               "* Merge request events\n" \
+               "* Wiki page events"
+    context.bot.send_message(chat_id=update.effective_chat.id, text=help)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=webhook)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=add_help)
+
+
 # the list has to be in this format:
 # command_name, command_description, callback_function
 # !important the command_name must be in lowercase
@@ -72,5 +88,6 @@ list_of_commands = sorted([
     ('next_lecture', 'Get next lecture info', get_next_lecture_info),
     ('slides', 'Get slides', get_slides),
     ('help', 'Get list of available commands', get_help),
-    ('taiga_webhook', 'Generate Taiga webhooks', generate_taiga_webhooks)
+    ('taiga_webhook', 'Generate Taiga webhooks', generate_taiga_webhooks),
+    ('gitlab_webhook', 'Generate GitLab webhooks', generate_gitlab_webhooks)
 ], key=lambda command: command[1])
