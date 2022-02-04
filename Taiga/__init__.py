@@ -1,9 +1,9 @@
 from datetime import datetime
 
 import Helper
-from Helper.Taiga import Data
-from Taiga import Action
+from Taiga import Action, Type
 from Taiga.By import By
+from Taiga.Data import Data
 
 
 class Taiga():
@@ -12,34 +12,26 @@ class Taiga():
         self.type = payload['type']
         self.by = By(payload['by'])
         self.date = Helper.convert_utc_rome(datetime.strptime(payload["date"], "%Y-%m-%dT%H:%M:%S.%fZ"))
-        self.data = Data(payload['data'])
         if self.action == Action.change:
             self.change = payload['change']
+        self.data = Data(payload['data'], self.type, self.change)
 
     def format_message_md(self):
-        action_text = "did something"
-        match self.action:
-            case Action.create:
-                action_text = self._format_create_md()
-            case Action.delete:
-                action_text = self._format_delete_md()
-            case Action.change:
-                action_text = self._format_change_md()
-            case Action.test:
-                action_text = self._format_test_md()
-        formatted_message = f"*[{self.date.strftime('%H:%M:%S')}]* " \
-                            f"The user [{self.by.full_name}]({self.by.link}) {action_text} on the board [{self.board}]({board_link}) "
+        action_type_text = "Changes has been made"
+        match self.type:
+            case Type.milestone:
+                action_type_text = self.data.milestone.format_message_md(self.action)
+            case Type.userstory:
+                action_type_text = self.data.userstory.format_message_md(self.action)
+            case Type.task:
+                action_type_text = self.data.task.format_message_md(self.action)
+            case Type.issue:
+                action_type_text = self.data.issue.format_message_md(self.action)
+            case Type.wiki:
+                action_type_text = self.data.wiki.format_message_md(self.action)
+        formatted_message = f"*[[{self.data.project_name}]({self.data.project_link})]" \
+                            f"[[{self.by.full_name}]({self.by.link})]" \
+                            f"[{self.date.strftime('%H:%M:%S')}]*\n" \
+                            f"{action_type_text}"
 
         return formatted_message
-
-    def _format_create_md(self) -> str:
-        pass
-
-    def _format_delete_md(self) -> str:
-        pass
-
-    def _format_change_md(self) -> str:
-        pass
-
-    def _format_test_md(self) -> str:
-        pass

@@ -7,6 +7,7 @@ from telegram.ext import Updater
 
 import Helper
 import Telegram
+from Taiga import Taiga
 
 isw_bot = Bot(Telegram.api_key)
 
@@ -23,20 +24,11 @@ def index():
 
 @app.route(f"/taiga/<chat_id>", methods=["POST"])
 def taiga_callback(chat_id):
-    data = json.loads(request.data)
-    board = data["data"]["project"]["name"]
-    action = data["action"]
-    type = data["type"]
-    user = data["by"]["full_name"]
-    user_link = data["by"]["permalink"]
-    board_link = data["data"]["project"]["permalink"]
-    date = Helper.convert_utc_rome(datetime.strptime(data["date"], "%Y-%m-%dT%H:%M:%S.%fZ"))
+    payload = json.loads(request.data)
+    taiga = Taiga(payload)
 
-    print(data)
-    text = f"*[{date.strftime('%H:%M:%S')}]* " \
-           f"The user [{user}]({user_link}) *{action}d* a *{type}* on the board [{board}]({board_link}) "
     try:
-        isw_bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
+        isw_bot.send_message(chat_id=chat_id, text=taiga.format_message_md(), parse_mode="Markdown")
     except Exception as e:
         print(e)
 
