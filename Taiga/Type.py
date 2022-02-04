@@ -55,7 +55,7 @@ class Milestone:
 
     @property
     def _change_message_md(self):
-        text = f"The milestone [{self.name}]({self.link}) has been changed, the following are the diffs:\n\n"
+        text = f"The milestone [{self.name}]({self.link}) has been changed\n\n"
         return text + get_changes(self.changes)
 
     def format_message_md(self, action):
@@ -74,8 +74,7 @@ class UserStory:
         self.subject = payload["subject"]
         self.description = payload["description"]
         self.changes = changes
-        if payload.get("milestone"):
-            self.milestone = Milestone(payload["milestone"])
+        self.milestone = Milestone(payload["milestone"]) if payload.get("milestone") else None
 
     @property
     def _create_message_md(self):
@@ -94,7 +93,7 @@ class UserStory:
     @property
     def _change_message_md(self):
         mil = f" with milestone [{self.milestone.name}]({self.milestone.link})" if self.milestone else ""
-        text = f"*[{self.status}]* A user story [{self.subject}]({self.link}){mil} has been changed, the following are the diffs:\n\n"
+        text = f"*[{self.status}]* The user story [{self.subject}]({self.link}){mil} has been changed\n\n"
         return text + get_changes(self.changes)
 
     def format_message_md(self, action):
@@ -112,10 +111,9 @@ class Task:
         self.subject = payload["subject"]
         self.description = payload["description"]
         self.changes = changes
-        if payload.get("milestone"):
-            self.milestone = Milestone(payload["milestone"])
-        if payload.get("user_story"):
-            self.userstory = UserStory(payload["user_story"])
+
+        self.milestone = Milestone(payload["milestone"]) if payload.get("milestone") else None
+        self.userstory = UserStory(payload["user_story"]) if payload.get("user_story") else None
         self.us_order = payload["us_order"]
 
     @property
@@ -140,7 +138,7 @@ class Task:
     def _change_message_md(self):
         us = f" in user story [{self.userstory.subject}]({self.userstory.link})" if self.userstory else ""
         mil = f" with milestone [{self.milestone.name}]({self.milestone.link})" if self.milestone else ""
-        text = f"*[{self.status}]* The task [{self.subject}]({self.link}) has been changed{us}{mil}, the following are the diffs:\n\n"
+        text = f"*[{self.status}]* The task [{self.subject}]({self.link}) has been changed{us}{mil}\n\n"
         return text + get_changes(self.changes)
 
     def format_message_md(self, action):
@@ -157,8 +155,7 @@ class Issue:
         self.status = payload["status"]["name"]
         self.subject = payload["subject"]
         self.description = payload["description"]
-        if payload.get("milestone"):
-            self.milestone = Milestone(payload["milestone"])
+        self.milestone = Milestone(payload["milestone"]) if payload.get("milestone") else None
         self.type = payload["type"]["name"]
         self.priority = payload["priority"]["name"]
         self.severity = payload["severity"]["name"]
@@ -183,7 +180,7 @@ class Issue:
     @property
     def _change_message_md(self):
         mil = f" with milestone [{self.milestone.name}]({self.milestone.link})" if self.milestone else ""
-        text = f"*[{self.status}][{self.type}]* The issue [{self.subject}]({self.link}) has been changed{mil}, the following are the diffs:\n\n"
+        text = f"*[{self.status}][{self.type}]* The issue [{self.subject}]({self.link}) has been changed{mil}\n\n"
         return text + get_changes(self.changes)
 
     def format_message_md(self, action):
@@ -210,7 +207,7 @@ class Wiki:
 
     @property
     def _change_message_md(self):
-        text = f"The wiki page [{self.slug}]({self.link}) has been changed, the following are the diffs:\n\n"
+        text = f"The wiki page [{self.slug}]({self.link}) has been changed\n\n"
         return text + get_changes(self.changes)
 
     def format_message_md(self, action):

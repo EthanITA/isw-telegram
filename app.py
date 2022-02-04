@@ -26,9 +26,11 @@ def index():
 def taiga_callback(chat_id):
     payload = json.loads(request.data)
     taiga = Taiga(payload)
+    text = taiga.format_message_md()
 
     try:
-        isw_bot.send_message(chat_id=chat_id, text=taiga.format_message_md(), parse_mode="Markdown")
+        if text is not None:
+            isw_bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
     except Exception as e:
         print(e)
 
