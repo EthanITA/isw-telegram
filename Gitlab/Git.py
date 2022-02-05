@@ -8,7 +8,7 @@ from Helper.MessageMD import MessageMD
 class Commit(MessageMD):
     def __init__(self, payload: dict):
         self.commit_id = payload['id']
-        self.message = payload['message']
+        self.message = payload['title']
         self.time: datetime = datetime.fromisoformat(payload['timestamp'])
         self.url = payload['url']
         self.author_name = payload['author']['name']
