@@ -15,7 +15,8 @@ def get_changes(changes):
     if changes is not None:
         text = ""
         for name, change in changes["diff"].items():
-            text += f"*{name}*\n\t {change['from']} --> {change['to']}\n"
+            diff = f"{change['from']} --> {change['to']}"
+            text += f"{name}\n\t {diff}\n"
         return text
     else:
         return ""
@@ -101,7 +102,7 @@ class UserStory(MessageMD):
 
     @property
     def _userstory_text_md(self):
-        status_escaped_md = escape_markdown(f"[{self.status}]")
+        status_escaped_md = escape_markdown(f"[{self.status}]", 2)
         mess = f"the user story [{status_escaped_md} {self.subject}]({self.link})"
         if self.milestone:
             mess = f"{mess} with milestone [{self.milestone.name}]({self.milestone.link})"
@@ -139,7 +140,7 @@ class Task(MessageMD):
 
     @property
     def _task_text_md(self):
-        status_escape_md = escape_markdown(f"[{self.status}]")
+        status_escape_md = escape_markdown(f"[{self.status}]", 2)
         mess = f"the task [{status_escape_md} {self.subject}]({self.link})"
         if self.userstory:
             mess = f"{mess} in user story [{self.userstory.subject}]({self.userstory.link})"
@@ -179,7 +180,7 @@ class Issue(MessageMD):
 
     @property
     def _issue_text_md(self):
-        text_escape_md = escape_markdown(f"[{self.status}][{self.type}]")
+        text_escape_md = escape_markdown(f"[{self.status}][{self.type}]", 2)
         mess = f"the issue [{text_escape_md} {self.subject}]({self.link})" \
                f"with priority *{self.priority}* and severity {self.severity}*"
         if self.milestone:

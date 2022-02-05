@@ -37,7 +37,7 @@ def taiga_callback(chat_id):
         if message is not None:
             isw_bot.send_message(chat_id=chat_id, text=message, parse_mode=PARSEMODE_MARKDOWN_V2)
         if changes is not None:
-            isw_bot.send_message(chat_id=chat_id, text=changes, parse_mode=PARSEMODE_MARKDOWN_V2)
+            isw_bot.send_message(chat_id=chat_id, text=changes)
     except Exception as e:
         print(e)
 

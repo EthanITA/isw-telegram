@@ -39,7 +39,7 @@ class Taiga:
                 action_type_text, changes_text = self.data.wiki.format_message_md, \
                                                  self.data.wiki.format_changes_md
 
-        time_escaped_md = escape_markdown(f"[{self.date.strftime('%H:%M:%S')}]")
+        time_escaped_md = escape_markdown(f"[{self.date.strftime('%H:%M:%S')}]", version=2)
         formatted_message = f"{time_escaped_md}" \
                             f"\\[[{self.data.project_name}]({self.data.project_link})\\]\n" \
                             f"[{self.by.full_name}]({self.by.link})" \
