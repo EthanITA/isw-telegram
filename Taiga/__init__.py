@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from telegram.utils.helpers import escape_markdown
+
 import Helper
 from Taiga import Action, Type
 from Taiga.By import By
@@ -19,21 +21,30 @@ class Taiga:
         self.data = Data(payload['data'], self.type, self.change, self.action)
 
     def format_message_md(self):
-        action_type_text = None
+        action_type_text, changes_text = None, None
         match self.type:
             case Type.milestone:
-                action_type_text = self.data.milestone.format_message_md
+                action_type_text, changes_text = self.data.milestone.format_message_md, \
+                                                 self.data.milestone.format_changes_md
             case Type.userstory:
-                action_type_text = self.data.userstory.format_message_md
+                action_type_text, changes_text = self.data.userstory.format_message_md, \
+                                                 self.data.userstory.format_changes_md
             case Type.task:
-                action_type_text = self.data.task.format_message_md
+                action_type_text, changes_text = self.data.task.format_message_md, \
+                                                 self.data.task.format_changes_md
             case Type.issue:
-                action_type_text = self.data.issue.format_message_md
+                action_type_text, changes_text = self.data.issue.format_message_md, \
+                                                 self.data.issue.format_changes_md
             case Type.wiki:
-                action_type_text = self.data.wiki.format_message_md
-        formatted_message = f"*[{self.date.strftime('%H:%M:%S')}]*\t" \
-                            f"[{self.data.project_name}]({self.data.project_link})/" \
-                            f"[{self.by.full_name}]({self.by.link})" \
-                            f"\n{action_type_text}"
+                action_type_text, changes_text = self.data.wiki.format_message_md, \
+                                                 self.data.wiki.format_changes_md
 
-        return formatted_message if action_type_text is not None else None
+        time_escaped_md = escape_markdown(f"[{self.date.strftime('%H:%M:%S')}]")
+        formatted_message = f"{time_escaped_md}" \
+                            f"\\[[{self.data.project_name}]({self.data.project_link})\\]\n" \
+                            f"[{self.by.full_name}]({self.by.link})" \
+                            f" {action_type_text} "
+        if action_type_text is not None:
+            return formatted_message, changes_text
+        else:
+            return None, None

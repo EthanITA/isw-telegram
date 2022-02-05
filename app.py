@@ -2,6 +2,7 @@ import json
 
 from flask import Flask, request
 from telegram import Bot
+from telegram.constants import PARSEMODE_MARKDOWN_V2
 from telegram.ext import Updater
 
 import Telegram
@@ -22,7 +23,7 @@ def gitlab_callback(chat_id):
     gitlab = Gitlab(payload)
     text = gitlab.format_message_md()
     try:
-        isw_bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
+        isw_bot.send_message(chat_id=chat_id, text=text, parse_mode=PARSEMODE_MARKDOWN_V2)
     except Exception as e:
         print(e)
 
@@ -31,11 +32,12 @@ def gitlab_callback(chat_id):
 def taiga_callback(chat_id):
     payload = json.loads(request.data)
     taiga = Taiga(payload)
-    text = taiga.format_message_md()
-
+    message, changes = taiga.format_message_md()
     try:
-        if text is not None:
-            isw_bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
+        if message is not None:
+            isw_bot.send_message(chat_id=chat_id, text=message, parse_mode=PARSEMODE_MARKDOWN_V2)
+        if changes is not None:
+            isw_bot.send_message(chat_id=chat_id, text=changes, parse_mode=PARSEMODE_MARKDOWN_V2)
     except Exception as e:
         print(e)
 

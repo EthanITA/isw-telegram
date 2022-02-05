@@ -1,3 +1,5 @@
+from telegram.utils.helpers import escape_markdown
+
 from Helper.MessageMD import MessageMD
 from Taiga import Action
 
@@ -20,20 +22,23 @@ def get_changes(changes):
 
 
 class FormatAction:
-    def __init__(self, action, create, delete, change):
+    def __init__(self, action, create, delete, change, changes=None):
         self.action = action
         self.create = create
         self.delete = delete
         self.change = change
+        self.changes = changes
 
-    def __str__(self):
+    def message(self) -> tuple[str, str | None] | tuple[None, None]:
         match self.action:
             case Action.create:
-                return self.create
+                return self.create, None
             case Action.delete:
-                return self.delete
+                return self.delete, None
             case Action.change:
-                return self.change
+                return self.change, self.changes
+            case _:
+                return None, None
 
 
 class Milestone(MessageMD):
@@ -44,24 +49,27 @@ class Milestone(MessageMD):
         self.estimated_start = payload["estimated_start"]
         self.estimated_finish = payload["estimated_finish"]
         self.disponibility = payload["disponibility"]
-        self.changes = changes
-        super().__init__(FormatAction(action,
-                                      self._create_message_md,
-                                      self._delete_message_md,
-                                      self._change_message_md))
+        super().__init__(*FormatAction(action,
+                                       self._create_message_md,
+                                       self._delete_message_md,
+                                       self._change_message_md,
+                                       get_changes(changes)).message())
 
     @property
     def _create_message_md(self):
-        return f"The milestone [{self.name}]({self.link}) has been created"
+        return f"created {self._milestone_text_md}"
 
     @property
     def _delete_message_md(self):
-        return f"The milestone [{self.name}]({self.link}) has been deleted"
+        return f"deleted {self._milestone_text_md}"
 
     @property
     def _change_message_md(self):
-        text = f"The milestone [{self.name}]({self.link}) has been changed\n\n"
-        return text + get_changes(self.changes)
+        return f"changed {self._milestone_text_md}"
+
+    @property
+    def _milestone_text_md(self):
+        return f"the milestone [{self.name}]({self.link})"
 
 
 class UserStory(MessageMD):
@@ -72,32 +80,32 @@ class UserStory(MessageMD):
         self.status = payload["status"]["name"]
         self.subject = payload["subject"]
         self.description = payload["description"]
-        self.changes = changes
         self.milestone = Milestone(payload["milestone"], action) if payload.get("milestone") else None
-        super().__init__(FormatAction(action,
-                                      self._create_message_md,
-                                      self._delete_message_md,
-                                      self._change_message_md))
+        super().__init__(*FormatAction(action,
+                                       self._create_message_md,
+                                       self._delete_message_md,
+                                       self._change_message_md,
+                                       get_changes(changes)).message())
 
     @property
     def _create_message_md(self):
-        mess = f"*[{self.status}]* The user story [{self.subject}]({self.link}) has been created"
-        if self.milestone:
-            mess = f"{mess} with milestone [{self.milestone.name}]({self.milestone.link})"
-        return mess
+        return f"created {self._userstory_text_md}"
 
     @property
     def _delete_message_md(self):
-        mess = f"*[{self.status}]* The user story [{self.subject}]({self.link}) has been deleted"
-        if self.milestone:
-            mess = f"{mess} with milestone [{self.milestone.name}]({self.milestone.link})"
-        return mess
+        return f"deleted {self._userstory_text_md}"
 
     @property
     def _change_message_md(self):
-        mil = f" with milestone [{self.milestone.name}]({self.milestone.link})" if self.milestone else ""
-        text = f"*[{self.status}]* The user story [{self.subject}]({self.link}){mil} has been changed\n\n"
-        return text + get_changes(self.changes)
+        return f"changed {self._userstory_text_md}"
+
+    @property
+    def _userstory_text_md(self):
+        status_escaped_md = escape_markdown(f"[{self.status}]")
+        mess = f"the user story [{status_escaped_md} {self.subject}]({self.link})"
+        if self.milestone:
+            mess = f"{mess} with milestone [{self.milestone.name}]({self.milestone.link})"
+        return mess
 
 
 class Task(MessageMD):
@@ -107,41 +115,37 @@ class Task(MessageMD):
         self.status = payload["status"]["name"]
         self.subject = payload["subject"]
         self.description = payload["description"]
-        self.changes = changes
-
         self.milestone = Milestone(payload["milestone"], action) if payload.get("milestone") else None
         self.userstory = UserStory(payload["user_story"], action) if payload.get("user_story") else None
         self.us_order = payload["us_order"]
 
-        super().__init__(FormatAction(action,
-                                      self._create_message_md,
-                                      self._delete_message_md,
-                                      self._change_message_md))
+        super().__init__(*FormatAction(action,
+                                       self._create_message_md,
+                                       self._delete_message_md,
+                                       self._change_message_md,
+                                       get_changes(changes)).message())
 
     @property
     def _create_message_md(self):
-        mess = f"*[{self.status}]* The task [{self.subject}]({self.link}) has been created"
-        if self.userstory:
-            mess = f"{mess} in user story [{self.userstory.subject}]({self.userstory.link})"
-        if self.milestone:
-            mess = f"{mess} with milestone [{self.milestone.name}]({self.milestone.link})"
-        return mess
+        return f"created {self._task_text_md}"
 
     @property
     def _delete_message_md(self):
-        mess = f"*[{self.status}]* The task [{self.subject}]({self.link}) has been deleted"
+        return f"deleted {self._task_text_md}"
+
+    @property
+    def _change_message_md(self):
+        return f"changed {self._task_text_md}"
+
+    @property
+    def _task_text_md(self):
+        status_escape_md = escape_markdown(f"[{self.status}]")
+        mess = f"the task [{status_escape_md} {self.subject}]({self.link})"
         if self.userstory:
             mess = f"{mess} in user story [{self.userstory.subject}]({self.userstory.link})"
         if self.milestone:
             mess = f"{mess} with milestone [{self.milestone.name}]({self.milestone.link})"
         return mess
-
-    @property
-    def _change_message_md(self):
-        us = f" in user story [{self.userstory.subject}]({self.userstory.link})" if self.userstory else ""
-        mil = f" with milestone [{self.milestone.name}]({self.milestone.link})" if self.milestone else ""
-        text = f"*[{self.status}]* The task [{self.subject}]({self.link}) has been changed{us}{mil}\n\n"
-        return text + get_changes(self.changes)
 
 
 class Issue(MessageMD):
@@ -155,33 +159,32 @@ class Issue(MessageMD):
         self.type = payload["type"]["name"]
         self.priority = payload["priority"]["name"]
         self.severity = payload["severity"]["name"]
-        self.changes = changes
-        super().__init__(FormatAction(action,
-                                      self._create_message_md,
-                                      self._delete_message_md,
-                                      self._change_message_md))
+        super().__init__(*FormatAction(action,
+                                       self._create_message_md,
+                                       self._delete_message_md,
+                                       self._change_message_md,
+                                       get_changes(changes)).message())
 
     @property
     def _create_message_md(self):
-        mess = f"*[{self.status}][{self.type}]* The issue [{self.subject}]({self.link}) has been created " \
-               f"with priority *{self.priority}* and severity {self.severity}*"
-        if self.milestone:
-            mess = f"{mess} with milestone [{self.milestone.name}]({self.milestone.link})"
-        return mess
+        return f"created {self._issue_text_md}"
 
     @property
     def _delete_message_md(self):
-        mess = f"*[{self.status}][{self.type}]* The issue [{self.subject}]({self.link}) has been deleted " \
+        return f"deleted {self._issue_text_md}"
+
+    @property
+    def _change_message_md(self):
+        return f"changed {self._issue_text_md}"
+
+    @property
+    def _issue_text_md(self):
+        text_escape_md = escape_markdown(f"[{self.status}][{self.type}]")
+        mess = f"the issue [{text_escape_md} {self.subject}]({self.link})" \
                f"with priority *{self.priority}* and severity {self.severity}*"
         if self.milestone:
             mess = f"{mess} with milestone [{self.milestone.name}]({self.milestone.link})"
         return mess
-
-    @property
-    def _change_message_md(self):
-        mil = f" with milestone [{self.milestone.name}]({self.milestone.link})" if self.milestone else ""
-        text = f"*[{self.status}][{self.type}]* The issue [{self.subject}]({self.link}) has been changed{mil}\n\n"
-        return text + get_changes(self.changes)
 
 
 class Wiki(MessageMD):
@@ -189,21 +192,20 @@ class Wiki(MessageMD):
         self.link = payload["permalink"]
         self.slug = payload["slug"]
         self.content = payload["content"]
-        self.changes = changes
-        super().__init__(FormatAction(action,
-                                      self._create_message_md,
-                                      self._delete_message_md,
-                                      self._change_message_md))
+        super().__init__(*FormatAction(action,
+                                       self._create_message_md,
+                                       self._delete_message_md,
+                                       self._change_message_md,
+                                       get_changes(changes)).message())
 
     @property
     def _create_message_md(self):
-        return f"The wiki page [{self.slug}]({self.link}) has been created with the following content:\n\n{self.content}"
+        return f"created the wiki page [{self.slug}]({self.link}) with the following content:\n\n{self.content}"
 
     @property
     def _delete_message_md(self):
-        return f"The wiki page [{self.slug}]({self.link}) has been deleted with the following content:\n\n{self.content}"
+        return f"deleted the wiki page [{self.slug}]({self.link})"
 
     @property
     def _change_message_md(self):
-        text = f"The wiki page [{self.slug}]({self.link}) has been changed\n\n"
-        return text + get_changes(self.changes)
+        return f"updated the wiki page [{self.slug}]({self.link})"
