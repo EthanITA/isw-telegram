@@ -1,3 +1,5 @@
+from telegram.utils.helpers import escape_markdown
+
 from Gitlab.Git import Commit, Repository
 from Helper.MessageMD import MessageMD
 
@@ -18,11 +20,14 @@ class Push(MessageMD):
         self.repo = Repository(payload["project"])
         self.commits: list[Commit] = [Commit(commit) for commit in payload["commits"]]
         self.total_commits = payload["total_commits_count"]
-        super().__init__(self._generate_message())
+        super().__init__(self._generate_message_md())
 
-    def _generate_message(self):
-        return f"{self.user_name} pushed {self.total_commits} {'commit' if self.total_commits == 1 else 'commits'}" \
-               f" to {self.branch} in {self.repo.name} ({self.repo.url})\n"
+    def _generate_message_md(self):
+        user_name = escape_markdown(self.user_name, version=2)
+        branch = escape_markdown(self.branch, version=2)
+        repo_name = escape_markdown(self.repo.name, version=2)
+        return f"{user_name} pushed {self.total_commits} {'commit' if self.total_commits == 1 else 'commits'}" \
+               f" to {branch} in [{repo_name}]({self.repo.url})\n"
 
     def get_commits_message_md(self):
         return "\n".join([commit.format_message_md for commit in self.commits])

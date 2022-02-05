@@ -22,10 +22,12 @@ def gitlab_callback(chat_id):
     payload = json.loads(request.data)
     gitlab = Gitlab(payload)
     text = gitlab.format_message_md()
+    print(text)
     try:
         isw_bot.send_message(chat_id=chat_id, text=text, parse_mode=PARSEMODE_MARKDOWN_V2)
     except Exception as e:
         print(e)
+    return "OK"
 
 
 @app.route(f"/taiga/<chat_id>", methods=["POST"])
