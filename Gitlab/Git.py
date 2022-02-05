@@ -17,37 +17,40 @@ class Commit(MessageMD):
         self.modified: list[str] = payload['modified']
         self.removed: list[str] = payload['removed']
         super().__init__(
-            self.formatted_message_md +
-            "\n\n" + self.formatted_added_md_escaped +
-            "\n" + self.formatted_modified_md_escaped +
-            "\n" + self.formatted_removed_md_escaped)
+            self._formatted_message_md +
+            "  " + self.formatted_added_md_escaped +
+            "  " + self.formatted_modified_md_escaped +
+            "  " + self.formatted_removed_md_escaped)
 
     @staticmethod
     def get_short_id(commit_id: str) -> str:
         return commit_id[:7]
 
     @property
-    def formatted_message_md(self):
+    def _formatted_message_md(self):
         mess = escape_markdown(self.message, version=2)
         return f'\\[[{self.get_short_id(self.commit_id)}]({self.url})\\] {mess}'
 
     @property
     def formatted_added_md_escaped(self):
-        return escape_markdown(
-            "\n[+]".join(self.added[:5] + [f"... {len(self.added) - 5}"] if len(self.added) > 5 else []),
-            version=2)
+        text = "".join([f"\n  [+] {commit}" for commit in self.added[:5]])
+        if len(self.added) > 5:
+            text += f"... {len(self.added) - 5} more"
+        return escape_markdown(text, version=2)
 
     @property
     def formatted_modified_md_escaped(self):
-        return escape_markdown("\n[~]".join(
-            self.modified[:5] + [f"... {len(self.modified) - 5}"] if len(self.modified) > 5 else []),
-            version=2)
+        text = "".join([f"\n  [~] {commit}" for commit in self.modified[:5]])
+        if len(self.modified) > 5:
+            text += f"... {len(self.modified) - 5} more"
+        return escape_markdown(text, version=2)
 
     @property
     def formatted_removed_md_escaped(self):
-        return escape_markdown(
-            "\n[-]".join(self.removed[:5] + [f"... {len(self.removed) - 5}"] if len(self.removed) > 5 else []),
-            version=2)
+        text = "".join([f"\n  [-] {commit}" for commit in self.removed[:5]])
+        if len(self.removed) > 5:
+            text += f"... {len(self.removed) - 5} more"
+        return escape_markdown(text, version=2)
 
 
 class Repository:

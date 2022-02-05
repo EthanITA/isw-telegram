@@ -33,9 +33,10 @@ class Push(MessageMD):
 
     @property
     def formatted_commits_md(self):
-        return "".join([commit.formatted_message_md for commit in self.commits][::-1] +
-                       [f"\nand{self.total_commits - len(self.commits)} more commits"] if self.total_commits > len(
-            self.commits) else [])
+        text = "\n".join([commit.formatted_message_md for commit in self.commits][::-1])
+        if self.total_commits > len(self.commits):
+            text += f"\nand{self.total_commits - len(self.commits)} more commits"
+        return text
 
 
 class MergeRequest(MessageMD):
