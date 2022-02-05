@@ -23,8 +23,10 @@ def gitlab_callback(chat_id):
     gitlab = Gitlab(payload)
     event = gitlab.get_event()
     try:
-        isw_bot.send_message(chat_id=chat_id, text=event.formatted_message_md, parse_mode=PARSEMODE_MARKDOWN_V2)
-        isw_bot.send_message(chat_id=chat_id, text=event.formatted_commits_md, parse_mode=PARSEMODE_MARKDOWN_V2)
+        isw_bot.send_message(chat_id=chat_id, text=event.formatted_message_md, parse_mode=PARSEMODE_MARKDOWN_V2,
+                             disable_web_page_preview=True)
+        isw_bot.send_message(chat_id=chat_id, text=event.formatted_commits_md, parse_mode=PARSEMODE_MARKDOWN_V2,
+                             disable_web_page_preview=True)
     except Exception as e:
         print(e)
     return "OK"
