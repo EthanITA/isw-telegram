@@ -24,20 +24,20 @@ class Taiga:
         action_type_text, changes_text = None, None
         match self.type:
             case Type.milestone:
-                action_type_text, changes_text = self.data.milestone.format_message_md, \
-                                                 self.data.milestone.format_changes_md
+                action_type_text, changes_text = self.data.milestone.formatted_message_md, \
+                                                 self.data.milestone.formatted_changes_md
             case Type.userstory:
-                action_type_text, changes_text = self.data.userstory.format_message_md, \
-                                                 self.data.userstory.format_changes_md
+                action_type_text, changes_text = self.data.userstory.formatted_message_md, \
+                                                 self.data.userstory.formatted_changes_md
             case Type.task:
-                action_type_text, changes_text = self.data.task.format_message_md, \
-                                                 self.data.task.format_changes_md
+                action_type_text, changes_text = self.data.task.formatted_message_md, \
+                                                 self.data.task.formatted_changes_md
             case Type.issue:
-                action_type_text, changes_text = self.data.issue.format_message_md, \
-                                                 self.data.issue.format_changes_md
+                action_type_text, changes_text = self.data.issue.formatted_message_md, \
+                                                 self.data.issue.formatted_changes_md
             case Type.wiki:
-                action_type_text, changes_text = self.data.wiki.format_message_md, \
-                                                 self.data.wiki.format_changes_md
+                action_type_text, changes_text = self.data.wiki.formatted_message_md, \
+                                                 self.data.wiki.formatted_changes_md
 
         time_escaped_md = escape_markdown(f"[{self.date.strftime('%H:%M:%S')}]", version=2)
         formatted_message = f"{time_escaped_md}" \

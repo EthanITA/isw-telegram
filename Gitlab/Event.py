@@ -17,6 +17,7 @@ class Push(MessageMD):
         self.before_commit_id = payload["before"]
         self.user_name = payload["user_name"]
         self.user_username = payload["user_username"]
+        self.user_profile_link = f"https://gitlab.com/{self.user_username}"
         self.repo = Repository(payload["project"])
         self.commits: list[Commit] = [Commit(commit) for commit in payload["commits"]]
         self.total_commits = payload["total_commits_count"]
@@ -26,11 +27,15 @@ class Push(MessageMD):
         user_name = escape_markdown(self.user_name, version=2)
         branch = escape_markdown(self.branch, version=2)
         repo_name = escape_markdown(self.repo.name, version=2)
-        return f"{user_name} pushed {self.total_commits} {'commit' if self.total_commits == 1 else 'commits'}" \
+        return f"[{user_name}]({self.user_profile_link}) just pushed {self.total_commits} " \
+               f"{'commit' if self.total_commits == 1 else 'commits'}" \
                f" to {branch} in [{repo_name}]({self.repo.url})\n"
 
-    def get_commits_message_md(self):
-        return "\n".join([commit.format_message_md for commit in self.commits])
+    @property
+    def formatted_commits_md(self):
+        return "".join([commit.formatted_message_md for commit in self.commits][::-1] +
+                       [f"\nand{self.total_commits - len(self.commits)} more commits"] if self.total_commits > len(
+            self.commits) else [])
 
 
 class MergeRequest(MessageMD):

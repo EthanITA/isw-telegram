@@ -4,9 +4,9 @@ class MessageMD:
         self.changes_md = changes_md
 
     @property
-    def format_message_md(self):
+    def formatted_message_md(self):
         return self.message_md
 
     @property
-    def format_changes_md(self):
+    def formatted_changes_md(self):
         return self.changes_md

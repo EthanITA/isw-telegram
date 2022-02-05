@@ -9,17 +9,17 @@ class Gitlab:
         self.project_name = payload['project']['name']
         self.project_url = payload['project']['web_url']
 
-    def format_message_md(self):
+    def get_event(self) -> Push | Issue | MergeRequest | Comment | WikiPage | None:
         match self.object_kind:
             case Event.push:
-                return Push(self.payload).format_message_md
+                return Push(self.payload)
             case Event.issue:
-                return Issue(self.payload).format_message_md
+                return Issue(self.payload)
             case Event.merge_request:
-                return MergeRequest(self.payload).format_message_md
+                return MergeRequest(self.payload)
             case Event.comment:
-                return Comment(self.payload).format_message_md
+                return Comment(self.payload)
             case Event.wiki_page:
-                return WikiPage(self.payload).format_message_md
+                return WikiPage(self.payload)
             case _:
                 return None

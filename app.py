@@ -21,10 +21,10 @@ app = Flask(__name__)
 def gitlab_callback(chat_id):
     payload = json.loads(request.data)
     gitlab = Gitlab(payload)
-    text = gitlab.format_message_md()
-    print(text)
+    event = gitlab.get_event()
     try:
-        isw_bot.send_message(chat_id=chat_id, text=text, parse_mode=PARSEMODE_MARKDOWN_V2)
+        isw_bot.send_message(chat_id=chat_id, text=event.formatted_message_md, parse_mode=PARSEMODE_MARKDOWN_V2)
+        isw_bot.send_message(chat_id=chat_id, text=event.formatted_commits_md, parse_mode=PARSEMODE_MARKDOWN_V2)
     except Exception as e:
         print(e)
     return "OK"
