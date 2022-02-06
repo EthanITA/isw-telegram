@@ -55,7 +55,7 @@ def mattermost_callback(chat_id):
     mattermost = Mattermost(payload)
     message = mattermost.formatted_message_md
     try:
-        isw_bot.send_message(chat_id=chat_id, text=message)
+        isw_bot.send_message(chat_id=chat_id, text=message, parse_mode=PARSEMODE_MARKDOWN_V2)
         return Response(status=200)
     except Exception as e:
         print(e)
