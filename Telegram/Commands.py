@@ -52,6 +52,16 @@ def get_help(update: Update, context: CallbackContext):
                              text="\n".join([f"/{command} : {descr}" for command, descr, _ in list_of_commands]))
 
 
+def generate_mattermost_webhooks(update: Update, context: CallbackContext):
+    heroku_app = "https://isw-bot.herokuapp.com"
+    help = "Go in your Mattermost homepage, on the top left square of 9 squares " \
+           "Integrations -> Outgoing Webhooks -> Add Outgoing Webhooks\n" \
+           "Set the Content Type as application/json and add the following Callback URL: "
+    webhook = f"{heroku_app}/mattermost/{update.effective_chat.id}"
+    context.bot.send_message(chat_id=update.effective_chat.id, text=help)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=webhook)
+
+
 def generate_taiga_webhooks(update: Update, context: CallbackContext):
     heroku_app = "https://isw-bot.herokuapp.com"
     help = "Go in your Taiga Board settings -> Integrations -> Webhooks\n" \
@@ -88,6 +98,7 @@ list_of_commands = sorted([
     ('next_lecture', 'Get next lecture info', get_next_lecture_info),
     ('slides', 'Get slides', get_slides),
     ('help', 'Get list of available commands', get_help),
-    ('taiga_webhook', 'Generate Taiga webhooks', generate_taiga_webhooks),
-    ('gitlab_webhook', 'Generate GitLab webhooks', generate_gitlab_webhooks)
+    ('taiga_webhook', 'Generate Taiga webhook', generate_taiga_webhooks),
+    ('gitlab_webhook', 'Generate GitLab webhook', generate_gitlab_webhooks),
+    ('mattermost_webhook', 'Generate Mattermost webhook', generate_mattermost_webhooks)
 ], key=lambda command: command[1])
