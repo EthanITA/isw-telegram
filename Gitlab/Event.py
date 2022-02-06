@@ -33,7 +33,7 @@ class Push(MessageMD):
 
     @property
     def formatted_commits_md(self):
-        text = "\n\n".join([commit.formatted_message_md for commit in self.commits][::-1])
+        text = "\n\n".join([f"`{commit.formatted_message_md}`" for commit in self.commits][::-1])
         if self.total_commits > len(self.commits):
             text += f"\n\nand *{self.total_commits - len(self.commits)} more commits*"
         return text
