@@ -1,12 +1,13 @@
 import json
 
-from flask import Flask, request
+from flask import Flask, request, Response
 from telegram import Bot
 from telegram.constants import PARSEMODE_MARKDOWN_V2
 from telegram.ext import Updater
 
 import Telegram
 from Gitlab import Gitlab
+from Mattermost import Mattermost
 from Taiga import Taiga
 
 isw_bot = Bot(Telegram.api_key)
@@ -46,6 +47,19 @@ def taiga_callback(chat_id):
         print(e)
 
     return "OK"
+
+
+@app.route("/mattermost/<chat_id>", methods=["POST"])
+def mattermost_callback(chat_id):
+    payload = json.loads(request.data)
+    mattermost = Mattermost(payload)
+    message = mattermost.formatted_message_md
+    try:
+        isw_bot.send_message(chat_id=chat_id, text=message)
+        return Response(status=200)
+    except Exception as e:
+        print(e)
+        return f"Channel not notified, the following error happened\n\t{e}"
 
 
 print("Bot started!")
