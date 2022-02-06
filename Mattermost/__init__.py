@@ -16,6 +16,6 @@ class Mattermost(MessageMD):
         super().__init__(self._gen_message())
 
     def _gen_message(self):
-        time_md_escaped = escape_markdown(f"[{self.date.time()[:8]}]", version=2)
-        return f'{time_md_escaped} {self.user_name}@{self.channel_name} says:\n' \
-               f'`{escape_markdown(self.text, version=2)}`'
+        return escape_markdown(f'[{str(self.date.time())[:8]}] {self.user_name}@{self.channel_name} says:\n\n',
+                               version=2) + \
+               f'```\n{escape_markdown(self.text, version=2)}```'

@@ -18,9 +18,11 @@ class Commit(MessageMD):
         self.removed: list[str] = payload['removed']
         super().__init__(
             self._formatted_message_md +
+            "```"+
             "  " + self.formatted_added_md_escaped +
             "  " + self.formatted_modified_md_escaped +
-            "  " + self.formatted_removed_md_escaped)
+            "  " + self.formatted_removed_md_escaped +
+            "```")
 
     @staticmethod
     def get_short_id(commit_id: str) -> str:
