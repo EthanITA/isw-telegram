@@ -8,7 +8,7 @@ from Helper.MessageMD import MessageMD
 class Commit(MessageMD):
     def __init__(self, payload: dict):
         self.commit_id = payload['id']
-        self.message = payload['title']
+        self.short_message = payload["message"].split("\n")[0].strip()
         self.time: datetime = datetime.fromisoformat(payload['timestamp'])
         self.url = payload['url']
         self.author_name = payload['author']['name']
@@ -28,7 +28,7 @@ class Commit(MessageMD):
 
     @property
     def _formatted_message_md(self):
-        mess = escape_markdown(self.message, version=2)
+        mess = escape_markdown(self.short_message, version=2)
         return f'\\[[{self.get_short_id(self.commit_id)}]({self.url})\\] {mess}'
 
     @property
