@@ -18,10 +18,10 @@ class Commit(MessageMD):
         self.removed: list[str] = payload['removed']
         super().__init__(
             self._formatted_message_md +
-            "```"+
-            "  " + self.formatted_added_md_escaped +
-            "  " + self.formatted_modified_md_escaped +
-            "  " + self.formatted_removed_md_escaped +
+            "```" +
+            "\n" + self.formatted_added_md_escaped +
+            "\n" + self.formatted_modified_md_escaped +
+            "\n" + self.formatted_removed_md_escaped +
             "```")
 
     @staticmethod
@@ -35,23 +35,23 @@ class Commit(MessageMD):
 
     @property
     def formatted_added_md_escaped(self):
-        text = "".join([f"\n  [+] {commit}" for commit in self.added[:5]])
+        text = "\n".join([f"  [+] {commit}" for commit in self.added[:5]])
         if len(self.added) > 5:
-            text += f"... {len(self.added) - 5} more"
+            text += f"\nand {len(self.added) - 5} more"
         return escape_markdown(text, version=2)
 
     @property
     def formatted_modified_md_escaped(self):
-        text = "".join([f"\n  [~] {commit}" for commit in self.modified[:5]])
+        text = "\n".join([f"  [~] {commit}" for commit in self.modified[:5]])
         if len(self.modified) > 5:
-            text += f"... {len(self.modified) - 5} more"
+            text += f"\nand {len(self.modified) - 5} more"
         return escape_markdown(text, version=2)
 
     @property
     def formatted_removed_md_escaped(self):
-        text = "".join([f"\n  [-] {commit}" for commit in self.removed[:5]])
+        text = "\n".join([f"  [-] {commit}" for commit in self.removed[:5]])
         if len(self.removed) > 5:
-            text += f"... {len(self.removed) - 5} more"
+            text += f"\nand {len(self.removed) - 5} more"
         return escape_markdown(text, version=2)
 
 
