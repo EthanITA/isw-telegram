@@ -2,6 +2,7 @@ from datetime import datetime
 
 from telegram.utils.helpers import escape_markdown
 
+import Helper
 from Helper.MessageMD import MessageMD
 
 
@@ -12,7 +13,7 @@ class Mattermost(MessageMD):
         self.text = payload['text']
         self.user_name = payload['user_name']
         self.trigger_word = payload['trigger_word']
-        self.date = datetime.fromtimestamp(payload['timestamp'] / 1000)
+        self.date = Helper.convert_utc_rome(datetime.fromtimestamp(payload['timestamp'] / 1000))
         super().__init__(self._gen_message())
 
     def _gen_message(self):
