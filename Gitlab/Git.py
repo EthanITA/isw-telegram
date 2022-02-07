@@ -18,8 +18,8 @@ class Commit(MessageMD):
         self.removed: list[str] = payload['removed']
         super().__init__(
             self._formatted_message_md +
-            "```" +
-            "\n" + self.formatted_added_md_escaped +
+            "\n```" +
+            self.formatted_added_md_escaped +
             "\n" + self.formatted_modified_md_escaped +
             "\n" + self.formatted_removed_md_escaped +
             "```")
