@@ -1,7 +1,7 @@
 import json
 
 from flask import Flask, request, Response
-from telegram import Bot
+from telegram import Bot, constants
 from telegram.constants import PARSEMODE_MARKDOWN_V2
 from telegram.ext import Updater
 
@@ -23,6 +23,8 @@ def gitlab_callback(chat_id):
     payload = json.loads(request.data)
     gitlab = Gitlab(payload)
     event = gitlab.get_event()
+    if constants.MAX_MESSAGE_LENGTH < len(event.formatted_message_md):
+        event = "_Message too long to display..._"
     try:
         isw_bot.send_message(chat_id=chat_id, text=event.formatted_message_md, parse_mode=PARSEMODE_MARKDOWN_V2,
                              disable_web_page_preview=True)
@@ -54,6 +56,8 @@ def mattermost_callback(chat_id):
     payload = json.loads(request.data)
     mattermost = Mattermost(payload)
     message = mattermost.formatted_message_md
+    if constants.MAX_MESSAGE_LENGTH < len(message):
+        message = "_Message too long to display..._"
     try:
         isw_bot.send_message(chat_id=chat_id, text=message, parse_mode=PARSEMODE_MARKDOWN_V2)
         return Response(status=200)
