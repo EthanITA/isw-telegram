@@ -79,8 +79,6 @@ def generate_gitlab_webhooks(update: Update, context: CallbackContext):
     add_help = "The following events are supported: \n" \
                "* Push events\n" \
                "* Issue events\n" \
-               "* Comment events\n" \
-               "* Merge request events\n" \
                "* Wiki page events"
     context.bot.send_message(chat_id=update.effective_chat.id, text=help)
     context.bot.send_message(chat_id=update.effective_chat.id, text=webhook)
