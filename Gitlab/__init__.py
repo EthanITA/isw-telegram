@@ -1,5 +1,5 @@
 from Gitlab import Event
-from Gitlab.Event import Push, Issue, MergeRequest, Comment, WikiPage
+from Gitlab.Event import Push, Issue, WikiPage
 
 
 class Gitlab:
@@ -9,16 +9,12 @@ class Gitlab:
         self.project_name = payload['project']['name']
         self.project_url = payload['project']['web_url']
 
-    def get_event(self) -> Push | Issue | MergeRequest | Comment | WikiPage | None:
+    def get_event(self) -> Push | Issue | WikiPage | None:
         match self.event_type:
             case Event.push:
                 return Push(self.payload)
             case Event.issue:
                 return Issue(self.payload)
-            case Event.merge_request:
-                return MergeRequest(self.payload)
-            case Event.comment:
-                return Comment(self.payload)
             case Event.wiki_page:
                 return WikiPage(self.payload)
             case _:
