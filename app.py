@@ -23,16 +23,15 @@ def gitlab_callback(chat_id):
     payload = json.loads(request.data)
     gitlab = Gitlab(payload)
     event = gitlab.get_event()
-    if constants.MAX_MESSAGE_LENGTH < len(event.formatted_message_md):
-        event = "_Message too long to display..._"
-    try:
-        isw_bot.send_message(chat_id=chat_id, text=event.formatted_message_md, parse_mode=PARSEMODE_MARKDOWN_V2,
-                             disable_web_page_preview=True)
-        isw_bot.send_message(chat_id=chat_id, text=event.formatted_commits_md, parse_mode=PARSEMODE_MARKDOWN_V2,
-                             disable_web_page_preview=True)
-    except Exception as e:
-        print(e)
-    return "OK"
+    if event is not None:
+        try:
+            for message in event.formatted_messages_md:
+                isw_bot.send_message(chat_id=chat_id, text=message, parse_mode=PARSEMODE_MARKDOWN_V2,
+                                     disable_web_page_preview=True)
+            return "OK"
+
+        except Exception as e:
+            print(e)
 
 
 @app.route(f"/taiga/<chat_id>", methods=["POST"])
@@ -45,17 +44,17 @@ def taiga_callback(chat_id):
             isw_bot.send_message(chat_id=chat_id, text=message, parse_mode=PARSEMODE_MARKDOWN_V2)
         if changes is not None:
             isw_bot.send_message(chat_id=chat_id, text=changes)
+        return "OK"
     except Exception as e:
         print(e)
 
-    return "OK"
 
 
 @app.route("/mattermost/<chat_id>", methods=["POST"])
 def mattermost_callback(chat_id):
     payload = json.loads(request.data)
     mattermost = Mattermost(payload)
-    message = mattermost.formatted_message_md
+    message = mattermost.formatted_messages_md[0]
     if constants.MAX_MESSAGE_LENGTH < len(message):
         message = "_Message too long to display..._"
     try:

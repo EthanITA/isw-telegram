@@ -23,23 +23,22 @@ def get_changes(changes):
 
 
 class FormatAction:
-    def __init__(self, action, create, delete, change, changes=None):
+    def __init__(self, action, create, delete, change):
         self.action = action
         self.create = create
         self.delete = delete
         self.change = change
-        self.changes = changes
 
-    def message(self) -> tuple[str, str | None] | tuple[None, None]:
+    def message(self) -> str | None:
         match self.action:
             case Action.create:
-                return self.create, None
+                return self.create
             case Action.delete:
-                return self.delete, None
+                return self.delete
             case Action.change:
-                return self.change, self.changes
+                return self.change
             case _:
-                return None, None
+                return None
 
 
 class Milestone(MessageMD):
@@ -50,11 +49,11 @@ class Milestone(MessageMD):
         self.estimated_start = payload["estimated_start"]
         self.estimated_finish = payload["estimated_finish"]
         self.disponibility = payload["disponibility"]
-        super().__init__(*FormatAction(action,
+        super().__init__(FormatAction(action,
                                        self._create_message_md,
                                        self._delete_message_md,
-                                       self._change_message_md,
-                                       get_changes(changes)).message())
+                                       self._change_message_md).message(),
+                         get_changes(changes))
 
     @property
     def _create_message_md(self):
@@ -82,11 +81,11 @@ class UserStory(MessageMD):
         self.subject = payload["subject"]
         self.description = payload["description"]
         self.milestone = Milestone(payload["milestone"], action) if payload.get("milestone") else None
-        super().__init__(*FormatAction(action,
+        super().__init__(FormatAction(action,
                                        self._create_message_md,
                                        self._delete_message_md,
-                                       self._change_message_md,
-                                       get_changes(changes)).message())
+                                       self._change_message_md).message(),
+                         get_changes(changes))
 
     @property
     def _create_message_md(self):
@@ -120,11 +119,11 @@ class Task(MessageMD):
         self.userstory = UserStory(payload["user_story"], action) if payload.get("user_story") else None
         self.us_order = payload["us_order"]
 
-        super().__init__(*FormatAction(action,
+        super().__init__(FormatAction(action,
                                        self._create_message_md,
                                        self._delete_message_md,
-                                       self._change_message_md,
-                                       get_changes(changes)).message())
+                                       self._change_message_md).message(),
+                         get_changes(changes))
 
     @property
     def _create_message_md(self):
@@ -160,11 +159,11 @@ class Issue(MessageMD):
         self.type = payload["type"]["name"]
         self.priority = payload["priority"]["name"]
         self.severity = payload["severity"]["name"]
-        super().__init__(*FormatAction(action,
+        super().__init__(FormatAction(action,
                                        self._create_message_md,
                                        self._delete_message_md,
-                                       self._change_message_md,
-                                       get_changes(changes)).message())
+                                       self._change_message_md).message(),
+                         get_changes(changes))
 
     @property
     def _create_message_md(self):
@@ -187,17 +186,16 @@ class Issue(MessageMD):
             mess = f"{mess} with milestone [{self.milestone.name}]({self.milestone.link})"
         return mess
 
-
 class Wiki(MessageMD):
     def __init__(self, payload, action, changes=None):
         self.link = payload["permalink"]
         self.slug = payload["slug"]
         self.content = payload["content"]
-        super().__init__(*FormatAction(action,
+        super().__init__(FormatAction(action,
                                        self._create_message_md,
                                        self._delete_message_md,
-                                       self._change_message_md,
-                                       get_changes(changes)).message())
+                                       self._change_message_md).message(),
+                         get_changes(changes))
 
     @property
     def _create_message_md(self):

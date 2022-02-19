@@ -24,20 +24,15 @@ class Taiga:
         action_type_text, changes_text = None, None
         match self.type:
             case Type.milestone:
-                action_type_text, changes_text = self.data.milestone.formatted_message_md, \
-                                                 self.data.milestone.formatted_changes_md
+                action_type_text, changes_text = self.data.milestone.formatted_messages_md
             case Type.userstory:
-                action_type_text, changes_text = self.data.userstory.formatted_message_md, \
-                                                 self.data.userstory.formatted_changes_md
+                action_type_text, changes_text = self.data.userstory.formatted_messages_md
             case Type.task:
-                action_type_text, changes_text = self.data.task.formatted_message_md, \
-                                                 self.data.task.formatted_changes_md
+                action_type_text, changes_text = self.data.task.formatted_messages_md
             case Type.issue:
-                action_type_text, changes_text = self.data.issue.formatted_message_md, \
-                                                 self.data.issue.formatted_changes_md
+                action_type_text, changes_text = self.data.issue.formatted_messages_md
             case Type.wiki:
-                action_type_text, changes_text = self.data.wiki.formatted_message_md, \
-                                                 self.data.wiki.formatted_changes_md
+                action_type_text, changes_text = self.data.wiki.formatted_messages_md
 
         time_escaped_md = escape_markdown(f"[{self.date.strftime('%H:%M:%S')}]", version=2)
         formatted_message = f"{time_escaped_md}" \

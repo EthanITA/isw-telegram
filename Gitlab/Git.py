@@ -2,10 +2,8 @@ from datetime import datetime
 
 from telegram.utils.helpers import escape_markdown
 
-from Helper.MessageMD import MessageMD
 
-
-class Commit(MessageMD):
+class Commit:
     def __init__(self, payload: dict):
         self.commit_id = payload['id']
         self.short_message = payload["message"].split("\n")[0].strip()
@@ -16,13 +14,13 @@ class Commit(MessageMD):
         self.added: list[str] = payload['added']
         self.modified: list[str] = payload['modified']
         self.removed: list[str] = payload['removed']
-        super().__init__(
-            self._formatted_message_md +
-            "\n```" +
-            self.formatted_added_md_escaped +
-            "\n" + self.formatted_modified_md_escaped +
-            "\n" + self.formatted_removed_md_escaped +
-            "```")
+
+    @property
+    def formatted_message_md(self):
+        return f"{self._formatted_message_md}\n" \
+               f"```{self.formatted_added_md_escaped}\n" \
+               f"{self.formatted_modified_md_escaped}" \
+               f"\n{self.formatted_removed_md_escaped}```"
 
     @staticmethod
     def get_short_id(commit_id: str) -> str:
@@ -33,26 +31,24 @@ class Commit(MessageMD):
         mess = escape_markdown(self.short_message, version=2)
         return f'\\[[{self.get_short_id(self.commit_id)}]({self.url})\\] {mess}'
 
+    def _get_formatted_changes(self, changes: list[str], prepend="") -> str:
+        n_changes = 5
+        text = "\n".join([f"  {prepend} {commit}" for commit in changes[:n_changes]])
+        if len(changes) > n_changes:
+            text += f"\nand {len(changes) - n_changes} more"
+        return escape_markdown(text, version=2)
+
     @property
     def formatted_added_md_escaped(self):
-        text = "\n".join([f"  [+] {commit}" for commit in self.added[:5]])
-        if len(self.added) > 5:
-            text += f"\nand {len(self.added) - 5} more"
-        return escape_markdown(text, version=2)
+        return self._get_formatted_changes(self.added, prepend="[+]")
 
     @property
     def formatted_modified_md_escaped(self):
-        text = "\n".join([f"  [~] {commit}" for commit in self.modified[:5]])
-        if len(self.modified) > 5:
-            text += f"\nand {len(self.modified) - 5} more"
-        return escape_markdown(text, version=2)
+        return self._get_formatted_changes(self.modified, prepend="[~]")
 
     @property
     def formatted_removed_md_escaped(self):
-        text = "\n".join([f"  [-] {commit}" for commit in self.removed[:5]])
-        if len(self.removed) > 5:
-            text += f"\nand {len(self.removed) - 5} more"
-        return escape_markdown(text, version=2)
+        return self._get_formatted_changes(self.removed, prepend="[-]")
 
 
 class Repository:
