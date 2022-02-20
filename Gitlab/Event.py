@@ -21,7 +21,7 @@ class Push(MessageMD):
         self.total_commits = payload["total_commits_count"]
         super().__init__(self.generate_message_md(), self.generate_commits_md())
 
-    def _generate_message_md(self):
+    def generate_message_md(self):
         user_name = escape_markdown(self.user_name, version=2)
         branch = escape_markdown(self.branch, version=2)
         repo_name = escape_markdown(self.repo.name, version=2)
@@ -29,7 +29,7 @@ class Push(MessageMD):
                f"{'commit' if self.total_commits == 1 else 'commits'}" \
                f" to {branch} in [{repo_name}]({self.repo.url})\n"
 
-    def _generate_commits_md(self):
+    def generate_commits_md(self):
         text = "\n\n".join([f"\n{commit.formatted_message_md}" for commit in self.commits][::-1])
         if self.total_commits > len(self.commits):
             text += f"\n\nand *{self.total_commits - len(self.commits)} more commits*"
@@ -93,3 +93,14 @@ class Issue(MessageMD):
 class WikiPage(MessageMD):
     def __init__(self, payload):
         super().__init__()
+
+    def _gen_message_md(self):
+        pass
+
+    @property
+    def created_message_md(self):
+        pass
+
+    @property
+    def updated_message_md(self):
+        pass
