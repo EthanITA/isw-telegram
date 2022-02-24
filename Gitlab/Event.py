@@ -38,11 +38,6 @@ class Push(MessageMD):
         return text
 
 
-class MergeRequest(MessageMD):
-    def __init__(self, payload):
-        super().__init__()
-
-
 class Issue(MessageMD):
     OPEN_ACTION = "open"
     CLOSE_ACTION = "close"
@@ -78,6 +73,7 @@ class Issue(MessageMD):
         return f"updated the issue"
 
     def _gen_message_md(self):
+        text = ""
         match self.issue_event.lower():
             case self.OPEN_ACTION:
                 text = self._open_message
@@ -87,29 +83,45 @@ class Issue(MessageMD):
                 text = self._reopen_message
             case self.UPDATE_ACTION:
                 text = self._update_message
-            case _:
-                text = f""
-        return f"[{self.user_name}]({self.user_profile_link}) {text}: [{self.issue_title}]({self.issue_url})"
 
-
-class Comment(MessageMD):
-    COMMIT_TYPE = "commit"
-
-    def __init__(self, payload):
-        self.payload = payload
-        self.repo = Repository(payload["project"])
-        self.user_name = payload["user"]["name"]
-        self.user_username = payload["user"]["username"]
-        self.user_profile_link = f"https://gitlab.com/{self.user_username}"
-        super().__init__()
-
-    def _gen_message_md(self):
-        pass
-
-    def _commit_comment(self):
-        commit_short_id = Commit.get_short_id(self.payload["object_attributes"]["commit_id"])
+        return f"[{self.user_name}]({self.user_profile_link}) {text} [{self.issue_title}]({self.issue_url})"
 
 
 class WikiPage(MessageMD):
+    CREATE_ACTION = "create"
+    UPDATE_ACTION = "update"
+    DELETE_ACTION = "delete"
+
     def __init__(self, payload):
-        super().__init__()
+        self.repo = Repository(payload["project"])
+        self.wiki_event = payload["object_attributes"]["action"]
+        self.wiki_title = payload["object_attributes"]["title"]
+        self.wiki_url = payload["object_attributes"]["url"]
+        self.user_name = payload["user"]["name"]
+        self.user_username = payload["user"]["username"]
+        self.user_profile_link = f"https://gitlab.com/{self.user_username}"
+        super().__init__(self._gen_message_md())
+
+    @property
+    def _create_message(self):
+        return f"created a new wiki page"
+
+    @property
+    def _update_message(self):
+        return f"updated the wiki page"
+
+    @property
+    def _delete_message(self):
+        return f"deleted the wiki page"
+
+    def _gen_message_md(self):
+        text = ""
+        match self.wiki_event.lower():
+            case self.CREATE_ACTION:
+                text = self._create_message
+            case self.UPDATE_ACTION:
+                text = self._update_message
+            case self.DELETE_ACTION:
+                text = self._delete_message
+
+        return f"[{self.user_name}]({self.user_profile_link}) {text} [{self.wiki_title}]({self.wiki_url})"
